@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="http://signage.isb.co.nz/smilHandler.ashx"
+        android:enabled="true"
+        android:key="baseurl"
+        android:selectable="true"
+        android:summary="Server Base Url Address"
+        android:title="Base Url" />
+    <EditTextPreference
+        android:defaultValue="none"
+        android:enabled="true"
+        android:key="playlist"
+        android:selectable="true"
+        android:summary="Playlist"
+        android:title="Playlist" />
+    <EditTextPreference android:defaultValue="none" android:key="email" android:title="Email" android:selectable="true" android:enabled="true" android:summary="Enter Email to use Different Account"/>
+    <EditTextPreference
+        android:defaultValue="http://signage.isb.co.nz/isbwordpress/upload.php"
+        android:enabled="true"
+        android:key="uploadUrl"
+        android:selectable="true"
+        android:singleLine="true"
+        android:summary="URL to Upload Files"
+        android:title="Upload Url" />
+    <EditTextPreference
+        android:defaultValue=""
+        android:enabled="true"
+        android:key="interactiveurl"
+        android:order="100"
+        android:selectable="true"
+        android:shouldDisableView="false"
+        android:summary="Interactive url"
+        android:title="Interactive"/>
+    <CheckBoxPreference android:selectable="true" android:title="Debug"  android:order="50" android:key="debug" android:defaultValue="false" android:shouldDisableView="false" android:enabled="true"/>
+    <EditTextPreference
+        android:defaultValue="abC123Xyz"
+        android:key="password"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="password" />
+    <Preference
+        android:key="@string/hide_button"
+        android:summary="Hide preferences"
+        android:order="200"
+        android:title="OK" />
+
+</PreferenceScreen>

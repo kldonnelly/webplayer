@@ -1,0 +1,41 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.isb.webplayer.MainActivity">
+    <item
+        android:id="@+id/action_picture"
+        android:title="Take Picture"
+        android:visible="false" />
+    <item
+        android:id="@+id/action_camera"
+        android:title="Camera Preview"
+        android:visible="false" />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_hide"
+        android:orderInCategory="101"
+        android:title="Hide"
+        app:showAsAction="never"/>
+
+
+    <item android:id="@+id/action_close"
+    android:title="Close"
+    app:showAsAction="never"
+    android:orderInCategory="102" />
+    <item
+        android:id="@+id/action_debug"
+        android:enabled="true"
+        android:title="Debug"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_login"
+        android:title="Login" />
+
+
+</menu>
