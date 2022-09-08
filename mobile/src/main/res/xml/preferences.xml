@@ -37,8 +37,9 @@
         android:title="Interactive"/>
     <CheckBoxPreference android:selectable="true" android:title="Debug"  android:order="50" android:key="debug" android:defaultValue="false" android:shouldDisableView="false" android:enabled="true"/>
     <EditTextPreference
-        android:defaultValue="abC123Xyz"
+        android:defaultValue="i$b$ignage"
         android:key="password"
+        android:inputType="textPassword"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="password" />

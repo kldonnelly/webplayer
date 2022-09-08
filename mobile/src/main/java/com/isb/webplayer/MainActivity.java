@@ -23,13 +23,17 @@ import android.os.Handler;
 import android.os.Message;
 
 
+import android.preference.EditTextPreference;
 import android.provider.Settings;
 
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+
 import android.support.v7.preference.Preference;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Menu;
@@ -46,6 +50,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -94,11 +99,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
+import android.widget.Toast;
 
 import net.pubnative.AdvertisingIdClient;
 
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.common.net.InternetDomainName;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -148,7 +155,9 @@ public class MainActivity extends AppCompatActivity {
     spotify m_spotify;
 
     String baseurl;
+    String DomainName;
     String title;
+    String password;
     int menu_interactive_index = 0;
     private ArrayList<IInteractiveMenuInjection> PageFinished = new ArrayList<>();
   //  private ArrayList<IInteractiveMenuInjection> PageStarted = new ArrayList<>();
@@ -167,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+
 
     private class SSLTolerentWebViewClient extends WebViewClient {
 
@@ -220,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void LocalOpenDocument() {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        Document doc = null;
+        Document doc;
         try {
 
             DocumentBuilder dBuilder;
@@ -678,7 +688,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         baseurl = sharedPref.getString("baseurl", null);
+        try {
+            DomainName=InternetDomainName.from(new URL(baseurl).getHost()).topPrivateDomain().toString();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 
+        password = sharedPref.getString("password","i$b$ignage");
         boolean debug = sharedPref.getBoolean("debug", false);
 
         if (debug) Debug = 3;
@@ -727,7 +743,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         String uploadUrl = sharedPref.getString("uploadUrl", null);
-        ;
 
         Log.d("Activity", "Upload Url=" + uploadUrl);
 
@@ -735,7 +750,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         mWebView = this.findViewById(R.id.webView1);
-        ;
         File dir = this.getCacheDir();
         mWebView.getSettings().setAppCachePath(dir.getAbsolutePath());
 
@@ -764,7 +778,6 @@ public class MainActivity extends AppCompatActivity {
         tvmsg.setTextColor(Color.RED);
 
         mImageView = this.findViewById(R.id.imageView1);
-        ;
 
         DisplayImageView div = new DisplayImageView(mImageView, contentonmediadrive, new OnEventListener<Integer>() {
 
@@ -874,12 +887,9 @@ public class MainActivity extends AppCompatActivity {
 
 
             final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // Do something after 5s = 5000ms
-                    uwc.TakePictures();
-                }
+            handler.postDelayed(() -> {
+                // Do something after 5s = 5000ms
+                uwc.TakePictures();
             }, 2000);
 
         }
@@ -909,11 +919,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void playnextOnUiThread() {
 
-        runOnUiThread(new Runnable() {
-            public void run() {
-                // UI code goes here
-                playnextx();
-            }
+        runOnUiThread(() -> {
+            // UI code goes here
+            playnextx();
         });
 
 
@@ -921,11 +929,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void LocalOpenDocumentUIThread() {
 
-        runOnUiThread(new Runnable() {
-            public void run() {
-                // UI code goes here
-                LocalOpenDocument();
-            }
+        runOnUiThread(() -> {
+            // UI code goes here
+            LocalOpenDocument();
         });
     }
 
@@ -936,7 +942,7 @@ public class MainActivity extends AppCompatActivity {
     void StartDownLoadTask(ArrayList<mediacontent> mediacontentlist) {
         Log.d("Activity", "StartDownLoadTask");
 
-        ArrayList<String> downloadstringArray = new ArrayList<String>();
+        ArrayList<String> downloadstringArray = new ArrayList<>();
 
         for (int index = 0; index < mediacontentlist.size(); index++) {
             File remotefile = new File(mediacontentlist.get(index).url);
@@ -1095,14 +1101,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void settext(final String text) {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        runOnUiThread(() -> {
 
 
-                tvmsg.setText(text);
+            if(tvmsg!=null)tvmsg.setText(text);
 
-            }
         });
     }
 
@@ -1113,13 +1116,7 @@ public class MainActivity extends AppCompatActivity {
             durThread = null;
         }
 
-        durThread = new Duration(timeout, new DurationComplete() {
-            @Override
-            public void DurationFinish() {
-                playnextOnUiThread();
-            }
-
-        });
+        durThread = new Duration(timeout, () -> playnextOnUiThread());
     }
 
     @Override
@@ -1193,24 +1190,52 @@ public class MainActivity extends AppCompatActivity {
             setPreferencesFromResource(R.xml.preferences, rootKey);
 
             Preference button = findPreference(getString(R.string.hide_button));
-            button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    //code for what you want it to do
-                    Activity ac = getActivity(preference.getContext());
+            button.setOnPreferenceClickListener(preference -> {
+                //code for what you want it to do
+                Activity ac = getActivity(preference.getContext());
 
-                    if (ac != null) {
-                        View viewf = ac.findViewById(R.id.pref_container);
-                        viewf.setVisibility(View.GONE);
-                    }
-                    if (sf != null) {
-                        getFragmentManager().beginTransaction()
-                                .hide(sf)
-                                .commit();
-                    }
+                if (ac != null) {
+                    View viewf = ac.findViewById(R.id.pref_container);
+                    viewf.setVisibility(View.GONE);
+                }
+                if (sf != null) {
+                    getFragmentManager().beginTransaction()
+                            .hide(sf)
+                            .commit();
+                }
+                if (lf != null) {
+                    getFragmentManager().beginTransaction()
+                            .hide(lf)
+                            .commit();
+                }
+                return true;
+            });
+
+            Preference editpassword = findPreference("password");
+            /*
+            EditTextPreference pref=(EditTextPreference)editpassword;
+
+            editpassword.setOnBindEditTextListener(
+                    new EditTextPreference.OnBindEditTextListener() {
+                        @Override
+                        public void onBindEditText(@NonNull EditText editText) {
+                            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        }
+                    });
+            */
+            editpassword.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (newValue.toString().length() > 4) {
+                    //
 
                     return true;
                 }
+                 else{
+                    // invalid you can show invalid message
+                    Toast.makeText(getContext().getApplicationContext(), "Password Too Short", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+
+
             });
 
         }
@@ -1220,8 +1245,23 @@ public class MainActivity extends AppCompatActivity {
     private void CloseApp() {
         Log.d("Activity", "Closing");
         settext("Closing");
+
+        if(lf!=null ){
+            getSupportFragmentManager().beginTransaction().remove(lf).commitAllowingStateLoss();
+            lf=null;
+        }
+
+        if(sf!=null ){
+            getSupportFragmentManager().beginTransaction().remove(sf).commitAllowingStateLoss();
+            sf=null;
+        }
+
         ViewGroup viewf = findViewById(R.id.pref_container);
-        viewf.removeAllViews();
+        if(viewf!=null)viewf.removeAllViews();
+
+
+
+     //   if(sf!=null)getSupportFragmentManager().beginTransaction().remove(sf).commitAllowingStateLoss();
 
         if (dwnltsk != null) {
             dwnltsk.cancel(false);
@@ -1233,13 +1273,8 @@ public class MainActivity extends AppCompatActivity {
             try {
 
                 dwnltsk.get();
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (CancellationException e) {
                 e.printStackTrace();
             }
 
@@ -1329,11 +1364,11 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_login:
                 viewf = this.findViewById(R.id.pref_container);
                 viewf.setVisibility(View.VISIBLE);
-                Bundle lfargs = new Bundle();
-                lfargs.putString("password", "dsdsd");
-
                 if (lf == null) {
                     lf = new LoginFragment();
+                    Bundle lfargs = new Bundle();
+                    lfargs.putString("password", password);
+                    lfargs.putString("DomainName",DomainName);
                     lf.setArguments(lfargs);
                     getSupportFragmentManager().beginTransaction()
                             .add(R.id.pref_container, lf)
@@ -1360,6 +1395,10 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_picture:
                 MenuTakePicture();
+                return true;
+
+            case 10:
+
                 return true;
 
             default:
@@ -1432,34 +1471,31 @@ public class MainActivity extends AppCompatActivity {
         Task task = mFusedLocationClient.getLastLocation();
 
 
-        task.addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    // Task completed successfully
-                    Location location = task.getResult();
-                    if (location != null) {
-                        // Logic to handle location object
-                        ids.location = location;
-                        String msg = "Updated Location: " +
-                                ids.location.getLatitude() + "," +
-                                ids.location.getLongitude();
-                        Log.d("Activity", msg);
-                    } else {
-                        Log.d("Activity", "Location null");
-                    }
-
+        task.addOnCompleteListener((OnCompleteListener<Location>) task1 -> {
+            if (task1.isSuccessful()) {
+                // Task completed successfully
+                Location location = task1.getResult();
+                if (location != null) {
+                    // Logic to handle location object
+                    ids.location = location;
+                    String msg = "Updated Location: " +
+                            ids.location.getLatitude() + "," +
+                            ids.location.getLongitude();
+                    Log.d("Activity", msg);
                 } else {
-                    // Task failed with an exception
-                    Exception exception = task.getException();
-                    Log.d("Activity", exception.getMessage());
+                    Log.d("Activity", "Location null");
                 }
 
-                r = RemoteRefreshSmil();
-                Log.d("Activity", "RemoteRefreshSmil r=" + r);
-
-
+            } else {
+                // Task failed with an exception
+                Exception exception = task1.getException();
+                Log.d("Activity", exception.getMessage());
             }
+
+            r = RemoteRefreshSmil();
+            Log.d("Activity", "RemoteRefreshSmil r=" + r);
+
+
         });
         return 1;
 

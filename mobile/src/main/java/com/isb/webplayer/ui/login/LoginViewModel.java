@@ -15,6 +15,7 @@ public class LoginViewModel extends ViewModel {
     private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
     private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
     private LoginRepository loginRepository;
+    private String password;
 
     LoginViewModel(LoginRepository loginRepository) {
         this.loginRepository = loginRepository;
@@ -26,6 +27,10 @@ public class LoginViewModel extends ViewModel {
 
     LiveData<LoginResult> getLoginResult() {
         return loginResult;
+    }
+
+    public void setPassword(String password){
+        this.password=password;
     }
 
     public void login(String username, String password) {
@@ -64,6 +69,6 @@ public class LoginViewModel extends ViewModel {
 
     // A placeholder password validation check
     private boolean isPasswordValid(String password) {
-        return password != null && password.trim().length() > 5;
+        return password != null && password.trim().length() > 3 && password.equals(this.password);
     }
 }
